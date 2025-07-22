@@ -17,9 +17,9 @@ Utilice notebooks administrados por Vertex AI o clústeres de Dataproc para una 
 A continuación, se muestra un script de Python mínimo e integral (con comentarios explicativos):
 
 ## 2. Entorno y configuración
-```
-# Propósito: Centralizar la configuración para reproducibilidad y gestión de recursos en la nube.  
-# Configurar variables de entorno para una configuración fácil y seleccionar recursos de computación según el tamaño de los datos.  
+
+Propósito: Centralizar la configuración para reproducibilidad y gestión de recursos en la nube.  
+Configurar variables de entorno para una configuración fácil y seleccionar recursos de computación según el tamaño de los datos.  
 
 ```  
 import os  
