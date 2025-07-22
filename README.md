@@ -5,13 +5,19 @@
 Este script ejecuta un flujo de trabajo orientado a producción para la clasificación binaria distribuida de XGBoost en Google Cloud ML, utilizando PySpark para preprocesar un gran conjunto de datos de Parquet y aprovechando el entrenamiento distribuido de XGBoost (Dask o Rabit). La guía incorpora las mejores prácticas de Google Cloud ML en cada paso, con lógica condicional para el tamaño de los datos y la aceleración de la GPU.
 
 ## 1. Requisitos previos
-a) Proyecto de Google Cloud con facturación habilitada
-b) Bucket de Google Cloud Storage (GCS) para datos y modelos
-c) Google Cloud Dataproc (para clústeres Spark) o Vertex AI Workbench (para entornos Jupyter administrados)
-d) Permisos de IAM suficientes: Administrador de almacenamiento, permisos de Dataproc/VertexAI
-e) Python 3.8 o superior con PySpark, XGBoost, Dask y Google Cloud Storage instalados
+
+• Proyecto de Google Cloud con facturación habilitada
+
+• Bucket de Google Cloud Storage (GCS) para datos y modelos
+
+• Google Cloud Dataproc (para clústeres Spark) o Vertex AI Workbench (para entornos Jupyter administrados)
+
+• Permisos de IAM suficientes: Administrador de almacenamiento, permisos de Dataproc/VertexAI
+
+• Python 3.8 o superior con PySpark, XGBoost, Dask y Google Cloud Storage instalados
 
 Práctica recomendada:
+
 Utilice notebooks administrados por Vertex AI o clústeres de Dataproc para una computación escalable y administrada. Utilice cuentas de servicio con privilegios mínimos y habilite los controles de servicio de VPC para mayor seguridad.
 
 A continuación, se muestra un script de Python mínimo e integral (con comentarios explicativos):
