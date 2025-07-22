@@ -3,7 +3,7 @@
 ## Descripción general
 
 Este script ejecuta un flujo de trabajo orientado a producción para la clasificación binaria distribuida de XGBoost en Google Cloud ML, utilizando PySpark para preprocesar un gran conjunto de datos de Parquet y aprovechando el entrenamiento distribuido de XGBoost (Dask o Rabit). La guía incorpora las mejores prácticas de Google Cloud ML en cada paso, con lógica condicional para el tamaño de los datos y la aceleración de la GPU.
-```
+
 ## 1. Requisitos previos
 • Proyecto de Google Cloud con facturación habilitada
 • Bucket de Google Cloud Storage (GCS) para datos y modelos
