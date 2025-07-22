@@ -25,18 +25,18 @@ Configurar variables de entorno para una configuración fácil y seleccionar rec
 import os  
 ```  
 
-# Configuración de Google Cloud  
+## Configuración de Google Cloud  
 ```  
-PROJECT = "your-gcp-project-id"    # Tu ID de proyecto de GCP  
-BUCKET = "gs://your-gcs-bucket"    # Bucket de Google Cloud Storage para datos/modelos  
-PARQUET_PATH = f"{BUCKET}/data/large_dataset.parquet"  # Ruta al conjunto de datos de entrada  
+PROJECT = "your-gcp-project-id"                                  # Su ID de proyecto de GCP  
+BUCKET = "gs://your-gcs-bucket"                                  # Bucket de Google Cloud Storage para datos/modelos  
+PARQUET_PATH = f"{BUCKET}/data/large_dataset.parquet"            # Ruta al conjunto de datos de entrada  
 MODEL_OUTPUT_PATH = f"{BUCKET}/models/xgboost_binary_model.bst"  # Ruta de salida del modelo  
 ```  
 
 # Datos y columna objetivo  
 ```  
-TARGET_COL = "target"  # Columna objetivo para clasificación binaria  
-NUMERICAL_FEATURES = ["feature1", "feature2", "feature3", …] # Reemplazar con características  
+TARGET_COL = "target"                                            # Columna objetivo para clasificación binaria  
+NUMERICAL_FEATURES = ["feature1", "feature2", "feature3", …]     # Reemplazar con características  
 ```  
 
 # Configuración del clúster (puede ser parametrizada)  
