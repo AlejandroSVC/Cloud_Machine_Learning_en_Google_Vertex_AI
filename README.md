@@ -99,12 +99,12 @@ Mejores prácticas:
 
 Convertir Spark DataFrame a Pandas (para datos pequeños) o persistir como Dask DataFrame para entrenamiento distribuido con GPU.  
 ```  
-data_count = df.count()                 # Obtener tamaño del conjunto de datos  
+data_count = df.count()                                  # Obtener tamaño del conjunto de datos  
 
-if data_count < 1_000_000:                      # Estrategia para datos pequeños (<1M filas)  
-    pandas_df = df.toPandas()                  # Convertir a Pandas (nodo único)  
-    X = pandas_df[NUMERICAL_FEATURES].values       # Matriz de características  
-    y = pandas_df[TARGET_COL].values               # Vector objetivo  
+if data_count < 1_000_000:                                # Estrategia para datos pequeños (<1M filas)  
+    pandas_df = df.toPandas()                             # Convertir a Pandas (nodo único)  
+    X = pandas_df[NUMERICAL_FEATURES].values              # Matriz de características  
+    y = pandas_df[TARGET_COL].values                      # Vector objetivo  
 else:  
     # Para datos grandes, escribir a CSV/Parquet y usar Dask para procesamiento distribuido  
     LOCAL_TMP_PATH = "/tmp/xgb_data/"  
@@ -143,12 +143,12 @@ else:
     import dask.dataframe as dd  
 
     # Inicializar cliente Dask (conecta al clúster)  
-    client = Client(n_workers=4, threads_per_worker=1)  # Personalizar según el clúster  
+    client = Client(n_workers=4, threads_per_worker=1)      # Personalizar según el clúster  
 
     # Cargar datos persistidos como Dask DataFrame (distribuido)  
     ddf = dd.read_parquet(LOCAL_TMP_PATH)  
-    X_dd = ddf[NUMERICAL_FEATURES]                      # Características distribuidas  
-    y_dd = ddf[TARGET_COL]                              # Etiquetas distribuidas  
+    X_dd = ddf[NUMERICAL_FEATURES]                          # Características distribuidas  
+    y_dd = ddf[TARGET_COL]                                  # Etiquetas distribuidas  
 
     # Crear DMatrix distribuido (estructura de datos optimizada de XGBoost)  
     dtrain = xgb.dask.DaskDMatrix(client, X_dd, y_dd)  
@@ -157,13 +157,13 @@ else:
     params = {  
         "objective": "binary:logistic",  
         "eval_metric": "auc",  
-        "tree_method": "gpu_hist" if USE_GPU else "hist",  # Aceleración por GPU  
+        "tree_method": "gpu_hist" if USE_GPU else "hist",   # Aceleración por GPU  
         "verbosity": 2  
     }  
 
     # Entrenamiento distribuido en el clúster Dask  
     output = xgb.dask.train(client, params, dtrain, num_boost_round=100)  
-    model = output['booster']              # Objeto del modelo entrenado  
+    model = output['booster']                               # Objeto del modelo entrenado  
 ```  
 
 Mejores prácticas:  
@@ -182,23 +182,23 @@ Propósito: Validar el rendimiento del modelo y guardar artefactos en el almacen
 ```  
 # Para datos pequeños  
 if data_count < 1_000_000:  
-    y_pred = model.predict(dtrain)             # Predicción local  
+    y_pred = model.predict(dtrain)                             # Predicción local  
     # Puedes agregar cálculo de ROC/AUC aquí (p.ej., sklearn.metrics.roc_auc_score)  
 else:  
    # Para Dask, usar xgb.dask.predict  
-    y_pred=xgb.dask.predict(client, model, dtrain).compute() # Predicción distribuida  
+    y_pred=xgb.dask.predict(client, model, dtrain).compute()   # Predicción distribuida  
     # Apagar clúster Dask después del entrenamiento  
     client.shutdown()  
 ```  
 
 4.2. Guardar Modelo en GCS  
 ```  
-model.save_model("/tmp/model.bst")     # Guardado temporal local  
+model.save_model("/tmp/model.bst")                             # Guardado temporal local  
 from google.cloud import storage  
 
 # Subir modelo a GCS  
 client = storage.Client(project=PROJECT)  
-bucket = client.bucket(BUCKET.replace("gs://", ""))    # Extraer nombre del bucket  
+bucket = client.bucket(BUCKET.replace("gs://", ""))            # Extraer nombre del bucket  
 blob = bucket.blob("models/xgboost_binary_model.bst")  
 blob.upload_from_filename("/tmp/model.bst")  
 ```  
