@@ -4,7 +4,7 @@
 
 Este script ejecuta un flujo de trabajo orientado a producción para la clasificación binaria distribuida de XGBoost en Google Cloud ML, utilizando PySpark para preprocesar un gran conjunto de datos de Parquet y aprovechando el entrenamiento distribuido de XGBoost (Dask o Rabit). La guía incorpora las mejores prácticas de Google Cloud ML en cada paso, con lógica condicional para el tamaño de los datos y la aceleración de la GPU.
 
-## 1. Requisitos previos
+## Requisitos previos
 
 • Proyecto de Google Cloud con facturación habilitada
 
@@ -22,7 +22,7 @@ Utilice notebooks administrados por Vertex AI o clústeres de Dataproc para una 
 
 A continuación, se muestra un script de Python mínimo e integral (con comentarios explicativos):
 
-## 2. Entorno y configuración
+# Paso 1: Entorno y configuración
 
 Propósito: Centralizar la configuración para reproducibilidad y gestión de recursos en la nube.  
 Configurar variables de entorno para una configuración fácil y seleccionar recursos de computación según el tamaño de los datos.  
@@ -39,27 +39,31 @@ PARQUET_PATH = f"{BUCKET}/data/large_dataset.parquet"            # Ruta al conju
 MODEL_OUTPUT_PATH = f"{BUCKET}/models/xgboost_binary_model.bst"  # Ruta de salida del modelo  
 ```  
 
-# Datos y columna objetivo  
+## Datos y columna objetivo  
 ```  
 TARGET_COL = "target"                                            # Columna objetivo para clasificación binaria  
 NUMERICAL_FEATURES = ["feature1", "feature2", "feature3", …]     # Reemplazar con características  
 ```  
 
-# Configuración del clúster (puede ser parametrizada)  
+## Configuración del clúster (puede ser parametrizada)  
 ```  
-CLUSTER_SIZE = "auto" # Opciones: small, medium, large, auto (escala automáticamente según los datos)  
-USE_GPU = True         # Habilitar aceleración por GPU para XGBoost  
+CLUSTER_SIZE = "auto"            # Opciones: small, medium, large, auto (escala automáticamente según los datos)  
+USE_GPU = True                   # Habilitar aceleración por GPU para XGBoost  
 ```  
 
-# Mejores prácticas:  
-# Parametrizar todas las rutas y configuraciones para reproducibilidad y automatización.  
-# Almacenar la configuración en un archivo .yaml o de entorno para repetibilidad e integración con CI/CD.  
-# Usar variables de entorno para parámetros sensibles.  
+Mejores prácticas:
 
-# 3. Carga y Procesamiento de Datos con PySpark  
-# Propósito: Cargar y preprocesar grandes conjuntos de datos de manera eficiente usando procesamiento distribuido con Spark.  
+• Parametrizar todas las rutas y configuraciones para reproducibilidad y automatización.  
 
-# 3.1. Inicializar Sesión de Spark  
+• Almacenar la configuración en un archivo .yaml o de entorno para repetibilidad e integración con CI/CD.  
+
+• Usar variables de entorno para parámetros sensibles.  
+
+# Paso 2: Carga y Procesamiento de Datos con PySpark  
+
+Propósito: Cargar y preprocesar grandes conjuntos de datos de manera eficiente usando procesamiento distribuido con Spark.  
+
+2.1. Inicializar Sesión de Spark  
 ```  
 from pyspark.sql import SparkSession  
 
@@ -70,24 +74,30 @@ spark = SparkSession.builder \
     .getOrCreate()  
 ```  
 
-# Mejores prácticas:  
-# Ajustar `executorMemory`, `executorCores` y `numExecutors` para conjuntos de datos grandes.  
-# Usar Parquet para almacenamiento columnar (E/S más rápida y retención de esquema).  
+Mejores prácticas:  
 
-# 3.2. Cargar Datos Parquet desde GCS  
+• Ajustar `executorMemory`, `executorCores` y `numExecutors` para conjuntos de datos grandes.  
+
+• Usar Parquet para almacenamiento columnar (E/S más rápida y retención de esquema).  
+
+2.2. Cargar Datos Parquet desde GCS  
 ```  
 df = spark.read.parquet(PARQUET_PATH)              # Lectura distribuida desde GCS  
 df = df.select(NUMERICAL_FEATURES + [TARGET_COL])  # Mantener solo columnas relevantes  
 df = df.na.drop()                                # Eliminar filas con valores faltantes  
 ```  
 
-# Mejores prácticas:  
-# Usar Parquet para E/S distribuida y eficiente.  
-# Usar poda de columnas (.select()) para minimizar la transferencia de datos.  
-# Manejar valores faltantes antes del entrenamiento (XGBoost no maneja NaNs de forma nativa).  
+Mejores prácticas:  
 
-# 3.3. Conversión de Datos para XGBoost  
-# Convertir Spark DataFrame a Pandas (para datos pequeños) o persistir como Dask DataFrame para entrenamiento distribuido con GPU.  
+• Usar Parquet para E/S distribuida y eficiente.  
+
+• Usar poda de columnas (.select()) para minimizar la transferencia de datos.  
+
+• Manejar valores faltantes antes del entrenamiento (XGBoost no maneja NaNs de forma nativa).  
+
+2.3. Conversión de Datos para XGBoost  
+
+Convertir Spark DataFrame a Pandas (para datos pequeños) o persistir como Dask DataFrame para entrenamiento distribuido con GPU.  
 ```  
 data_count = df.count()                 # Obtener tamaño del conjunto de datos  
 
@@ -105,24 +115,28 @@ else:
     # Usar formatos eficientes (Parquet) para almacenamiento intermedio.  
 ```  
 
-# 5. Entrenamiento Distribuido de XGBoost (con Soporte para GPU)  
-# Propósito: Entrenar modelo XGBoost con aceleración por GPU y computación distribuida.  
-# Puedes usar la interfaz Dask de XGBoost para entrenamiento distribuido y escalable.  
-    • Para datos pequeños: Usar xgboost.train nativo.  
-    • Para datos grandes: Usar dask-xgboost o xgboost.dask.  
+# Paso 3: Entrenamiento Distribuido de XGBoost (con Soporte para GPU)  
+
+Propósito: Entrenar modelo XGBoost con aceleración por GPU y computación distribuida.  
+
+Puedes usar la interfaz Dask de XGBoost para entrenamiento distribuido y escalable.  
+
+• Para datos pequeños: Usar xgboost.train nativo.
+
+• Para datos grandes: Usar dask-xgboost o xgboost.dask.
 ```  
 import xgboost as xgb  
 
-if data_count < 1_000_000:                # Conjunto de datos pequeño  
+if data_count < 1_000_000:                                  # Conjunto de datos pequeño  
     # Datos pequeños: entrenamiento local  
-    dtrain = xgb.DMatrix(X, label=y)      # Crear matriz de datos XGBoost  
-    params = {                            # Parámetros de entrenamiento  
-        "objective": "binary:logistic",       # Clasificación binaria  
-        "eval_metric": "auc",                        # Métrica de evaluación (Área Bajo la Curva)  
-        "tree_method": "gpu_hist" if USE_GPU else "hist",     # Aceleración por GPU  
-        "verbosity": 2                                        # Mostrar logs de entrenamiento  
+    dtrain = xgb.DMatrix(X, label=y)                        # Crear matriz de datos XGBoost  
+    params = {                                              # Parámetros de entrenamiento  
+        "objective": "binary:logistic",                     # Clasificación binaria  
+        "eval_metric": "auc",                               # Métrica de evaluación (Área Bajo la Curva)  
+        "tree_method": "gpu_hist" if USE_GPU else "hist",   # Aceleración por GPU  
+        "verbosity": 2                                      # Mostrar logs de entrenamiento  
     }  
-    model = xgb.train(params, dtrain, num_boost_round=100)    # Entrenamiento local  
+    model = xgb.train(params, dtrain, num_boost_round=100)  # Entrenamiento local  
 else:  
     # Datos grandes: XGBoost distribuido con Dask  
     from dask.distributed import Client  
@@ -133,8 +147,8 @@ else:
 
     # Cargar datos persistidos como Dask DataFrame (distribuido)  
     ddf = dd.read_parquet(LOCAL_TMP_PATH)  
-    X_dd = ddf[NUMERICAL_FEATURES]          # Características distribuidas  
-    y_dd = ddf[TARGET_COL]                  # Etiquetas distribuidas  
+    X_dd = ddf[NUMERICAL_FEATURES]                      # Características distribuidas  
+    y_dd = ddf[TARGET_COL]                              # Etiquetas distribuidas  
 
     # Crear DMatrix distribuido (estructura de datos optimizada de XGBoost)  
     dtrain = xgb.dask.DaskDMatrix(client, X_dd, y_dd)  
@@ -152,15 +166,19 @@ else:
     model = output['booster']              # Objeto del modelo entrenado  
 ```  
 
-# Mejores prácticas:  
-# Usar 'gpu_hist' para entrenamiento 5-10x más rápido en GPUs NVIDIA.  
-# Monitorear eval_metric (AUC) durante el entrenamiento para parada temprana.  
-# Escalar trabajadores de Dask horizontalmente para conjuntos de datos más grandes.  
+Mejores prácticas:  
 
-# 6. Evaluación y Guardado del Modelo  
-# Propósito: Validar el rendimiento del modelo y guardar artefactos en el almacenamiento en la nube.  
+• Usar 'gpu_hist' para entrenamiento 5-10x más rápido en GPUs NVIDIA.  
 
-# 6.1. Generar Predicciones  
+• Monitorear eval_metric (AUC) durante el entrenamiento para parada temprana.  
+
+• Escalar trabajadores de Dask horizontalmente para conjuntos de datos más grandes.  
+
+# Paso 4: Evaluación y Guardado del Modelo  
+
+Propósito: Validar el rendimiento del modelo y guardar artefactos en el almacenamiento en la nube.  
+
+4.1. Generar Predicciones  
 ```  
 # Para datos pequeños  
 if data_count < 1_000_000:  
@@ -173,7 +191,7 @@ else:
     client.shutdown()  
 ```  
 
-# 6.2. Guardar Modelo en GCS  
+4.2. Guardar Modelo en GCS  
 ```  
 model.save_model("/tmp/model.bst")     # Guardado temporal local  
 from google.cloud import storage  
@@ -185,29 +203,39 @@ blob = bucket.blob("models/xgboost_binary_model.bst")
 blob.upload_from_filename("/tmp/model.bst")  
 ```  
 
-# Mejores prácticas:  
-# Siempre guardar modelos en almacenamiento en la nube para:  
-* Control de versiones (versiones de objetos en GCS)  
-* Despliegue en Vertex AI o Cloud Functions  
-* Reproducibilidad en diferentes entornos  
-# Agregar métricas de evaluación del modelo (AUC, precisión/exhaustividad) a un sistema de seguimiento.  
+Mejores prácticas:  
 
-# Recomendaciones para Producción:  
+Siempre guardar modelos en almacenamiento en la nube para:  
+
+• Control de versiones (versiones de objetos en GCS).
+
+• Despliegue en Vertex AI o Cloud Functions.  
+
+• Reproducibilidad en diferentes entornos.
+
+• Agregar métricas de evaluación del modelo (AUC, precisión/exhaustividad) a un sistema de seguimiento.  
+
+Recomendaciones para Producción:  
+
 1) Usar Vertex AI Pipelines para orquestación de flujos de trabajo.  
 2) Implementar ajuste de hiperparámetros (Vertex AI Vizier).  
 3) Agregar hooks de monitoreo para métricas de entrenamiento.  
 4) Proteger datos con VPC Service Controls.  
 5) Contenerizar usando Docker para portabilidad.  
 
-# 7. Resumen de Mejores Prácticas  
-    • Parametrizar configuraciones para reproducibilidad y automatización.  
-    • Usar Parquet para almacenamiento, Dask/Spark para computación distribuida.  
-    • Aprovechar GPUs para entrenamiento rápido y a gran escala de XGBoost (con gpu_hist).  
-    • Siempre monitorear métricas como AUC durante el entrenamiento.  
-    • Guardar modelos en GCS para control de versiones y despliegue.  
-    • Proteger recursos con IAM, VPC Service Controls y permisos mínimos.  
-    • Automatizar mediante Vertex AI Pipelines o Cloud Composer para flujos de trabajo repetibles.  
+Resumen de Mejores Prácticas  
 
-# Notas Finales  
-    • Produc
+• Parametrizar configuraciones para reproducibilidad y automatización.  
+
+• Usar Parquet para almacenamiento, Dask/Spark para computación distribuida.  
+
+• Aprovechar GPUs para entrenamiento rápido y a gran escala de XGBoost (con gpu_hist).  
+
+• Siempre monitorear métricas como AUC durante el entrenamiento.  
+
+• Guardar modelos en GCS para control de versiones y despliegue.  
+
+• Proteger recursos con IAM, VPC Service Controls y permisos mínimos.  
+
+• Automatizar mediante Vertex AI Pipelines o Cloud Composer para flujos de trabajo repetibles.  
 
