@@ -84,7 +84,7 @@ Mejores prácticas:
 ```  
 df = spark.read.parquet(PARQUET_PATH)              # Lectura distribuida desde GCS  
 df = df.select(NUMERICAL_FEATURES + [TARGET_COL])  # Mantener solo columnas relevantes  
-df = df.na.drop()                                # Eliminar filas con valores faltantes  
+df = df.na.drop()                                  # Eliminar filas con valores faltantes  
 ```  
 
 Mejores prácticas:  
