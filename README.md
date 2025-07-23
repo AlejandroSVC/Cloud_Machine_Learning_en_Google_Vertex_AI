@@ -6,15 +6,15 @@ Este script ejecuta un flujo de trabajo orientado a producción para la clasific
 
 ## Requisitos previos
 
-• Proyecto de Google Cloud con facturación habilitada
+•  Proyecto de Google Cloud con facturación habilitada.
 
-• Bucket de Google Cloud Storage (GCS) para datos y modelos
+•  Bucket de Google Cloud Storage (GCS) para datos y modelos.
 
-• Google Cloud Dataproc (para clústeres Spark) o Vertex AI Workbench (para entornos Jupyter administrados)
+•  Google Cloud Dataproc (para clústeres Spark) o Vertex AI Workbench (para entornos Jupyter administrados).
 
-• Permisos de IAM suficientes: Administrador de almacenamiento, permisos de Dataproc/VertexAI
+•  Permisos de IAM suficientes: Administrador de almacenamiento, permisos de Dataproc/VertexAI.
 
-• Python 3.8 o superior con PySpark, XGBoost, Dask y Google Cloud Storage instalados
+•  Python 3.8 o superior con PySpark, XGBoost, Dask y Google Cloud Storage instalados.
 
 Práctica recomendada:
 
@@ -53,11 +53,11 @@ USE_GPU = True                   # Habilitar aceleración por GPU para XGBoost
 
 Mejores prácticas:
 
-• Parametrizar todas las rutas y configuraciones para reproducibilidad y automatización.  
+•  Parametrizar todas las rutas y configuraciones para reproducibilidad y automatización.  
 
-• Almacenar la configuración en un archivo .yaml o de entorno para repetibilidad e integración con CI/CD.  
+•  Almacenar la configuración en un archivo .yaml o de entorno para repetibilidad e integración con CI/CD.  
 
-• Usar variables de entorno para parámetros sensibles.  
+•  Usar variables de entorno para parámetros sensibles.  
 
 # Paso 2: Carga y Procesamiento de Datos con PySpark  
 
@@ -76,9 +76,9 @@ spark = SparkSession.builder \
 
 Mejores prácticas:  
 
-• Ajustar `executorMemory`, `executorCores` y `numExecutors` para conjuntos de datos grandes.  
+•  Ajustar `executorMemory`, `executorCores` y `numExecutors` para conjuntos de datos grandes.  
 
-• Usar Parquet para almacenamiento columnar (E/S más rápida y retención de esquema).  
+•  Usar Parquet para almacenamiento columnar (E/S más rápida y retención de esquema).  
 
 2.2. Cargar Datos Parquet desde GCS  
 ```  
@@ -89,11 +89,11 @@ df = df.na.drop()                                  # Eliminar filas con valores 
 
 Mejores prácticas:  
 
-• Usar Parquet para E/S distribuida y eficiente.  
+•  Usar Parquet para E/S distribuida y eficiente.  
 
-• Usar poda de columnas (.select()) para minimizar la transferencia de datos.  
+•  Usar poda de columnas (.select()) para minimizar la transferencia de datos.  
 
-• Manejar valores faltantes antes del entrenamiento (XGBoost no maneja NaNs de forma nativa).  
+•  Manejar valores faltantes antes del entrenamiento (XGBoost no maneja NaNs de forma nativa).  
 
 2.3. Conversión de Datos para XGBoost  
 
@@ -109,11 +109,14 @@ else:
     # Para datos grandes, escribir a CSV/Parquet y usar Dask para procesamiento distribuido  
     LOCAL_TMP_PATH = "/tmp/xgb_data/"  
     df.write.mode('overwrite').parquet(LOCAL_TMP_PATH)    # Persistir datos procesados  
-    # Mejores prácticas:  
-    # Usar formatos de archivo distribuidos y Dask para escalabilidad.  
-    # Evitar errores de OOM en el driver al no recolectar grandes conjuntos de datos en un solo nodo.  
-    # Usar formatos eficientes (Parquet) para almacenamiento intermedio.  
 ```  
+Mejores prácticas:  
+
+•  Usar formatos de archivo distribuidos y Dask para escalabilidad.  
+
+•  Evitar errores de OOM en el driver al no recolectar grandes conjuntos de datos en un solo nodo.  
+
+•  Usar formatos eficientes (Parquet) para almacenamiento intermedio.  
 
 # Paso 3: Entrenamiento Distribuido de XGBoost (con Soporte para GPU)  
 
@@ -121,9 +124,9 @@ Propósito: Entrenar modelo XGBoost con aceleración por GPU y computación dist
 
 Puedes usar la interfaz Dask de XGBoost para entrenamiento distribuido y escalable.  
 
-• Para datos pequeños: Usar xgboost.train nativo.
+•  Para datos pequeños: Usar xgboost.train nativo.
 
-• Para datos grandes: Usar dask-xgboost o xgboost.dask.
+•  Para datos grandes: Usar dask-xgboost o xgboost.dask.
 ```  
 import xgboost as xgb  
 
@@ -168,11 +171,11 @@ else:
 
 Mejores prácticas:  
 
-• Usar 'gpu_hist' para entrenamiento 5-10x más rápido en GPUs NVIDIA.  
+•  Usar 'gpu_hist' para entrenamiento 5-10x más rápido en GPUs NVIDIA.  
 
-• Monitorear eval_metric (AUC) durante el entrenamiento para parada temprana.  
+•  Monitorear eval_metric (AUC) durante el entrenamiento para parada temprana.  
 
-• Escalar trabajadores de Dask horizontalmente para conjuntos de datos más grandes.  
+•  Escalar trabajadores de Dask horizontalmente para conjuntos de datos más grandes.  
 
 # Paso 4: Evaluación y Guardado del Modelo  
 
@@ -207,13 +210,13 @@ Mejores prácticas:
 
 Siempre guardar modelos en almacenamiento en la nube para:  
 
-• Control de versiones (versiones de objetos en GCS).
+•  Control de versiones (versiones de objetos en GCS).
 
-• Despliegue en Vertex AI o Cloud Functions.  
+•  Despliegue en Vertex AI o Cloud Functions.  
 
-• Reproducibilidad en diferentes entornos.
+•  Reproducibilidad en diferentes entornos.
 
-• Agregar métricas de evaluación del modelo (AUC, precisión/exhaustividad) a un sistema de seguimiento.  
+•  Agregar métricas de evaluación del modelo (AUC, precisión/exhaustividad) a un sistema de seguimiento.  
 
 Recomendaciones para Producción:  
 
@@ -225,17 +228,17 @@ Recomendaciones para Producción:
 
 Resumen de Mejores Prácticas  
 
-• Parametrizar configuraciones para reproducibilidad y automatización.  
+•  Parametrizar configuraciones para reproducibilidad y automatización.  
 
-• Usar Parquet para almacenamiento, Dask/Spark para computación distribuida.  
+•  Usar Parquet para almacenamiento, Dask/Spark para computación distribuida.  
 
-• Aprovechar GPUs para entrenamiento rápido y a gran escala de XGBoost (con gpu_hist).  
+•  Aprovechar GPUs para entrenamiento rápido y a gran escala de XGBoost (con gpu_hist).  
 
-• Siempre monitorear métricas como AUC durante el entrenamiento.  
+•  Siempre monitorear métricas como AUC durante el entrenamiento.  
 
-• Guardar modelos en GCS para control de versiones y despliegue.  
+•  Guardar modelos en GCS para control de versiones y despliegue.  
 
-• Proteger recursos con IAM, VPC Service Controls y permisos mínimos.  
+•  Proteger recursos con IAM, VPC Service Controls y permisos mínimos.  
 
-• Automatizar mediante Vertex AI Pipelines o Cloud Composer para flujos de trabajo repetibles.  
+•  Automatizar mediante Vertex AI Pipelines o Cloud Composer para flujos de trabajo repetibles.  
 
