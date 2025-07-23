@@ -95,7 +95,7 @@ Mejores prácticas:
 
 •  Manejar valores faltantes antes del entrenamiento (XGBoost no maneja NaNs de forma nativa).  
 
-2.3. Conversión de Datos para XGBoost  
+**2.3. Conversión de Datos para XGBoost**
 
 Convertir Spark DataFrame a Pandas (para datos pequeños) o persistir como Dask DataFrame para entrenamiento distribuido con GPU.  
 ```  
