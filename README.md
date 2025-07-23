@@ -63,7 +63,7 @@ Mejores prácticas:
 
 Propósito: Cargar y preprocesar grandes conjuntos de datos de manera eficiente usando procesamiento distribuido con Spark.  
 
-2.1. Inicializar Sesión de Spark  
+**2.1. Inicializar Sesión de Spark**
 ```  
 from pyspark.sql import SparkSession  
 
@@ -80,7 +80,7 @@ Mejores prácticas:
 
 •  Usar Parquet para almacenamiento columnar (E/S más rápida y retención de esquema).  
 
-2.2. Cargar Datos Parquet desde GCS  
+**2.2. Cargar Datos Parquet desde GCS**
 ```  
 df = spark.read.parquet(PARQUET_PATH)              # Lectura distribuida desde GCS  
 df = df.select(NUMERICAL_FEATURES + [TARGET_COL])  # Mantener solo columnas relevantes  
@@ -181,7 +181,7 @@ Mejores prácticas:
 
 Propósito: Validar el rendimiento del modelo y guardar artefactos en el almacenamiento en la nube.  
 
-4.1. Generar Predicciones  
+**4.1. Generar Predicciones**
 ```  
 # Para datos pequeños  
 if data_count < 1_000_000:  
@@ -194,7 +194,7 @@ else:
     client.shutdown()  
 ```  
 
-4.2. Guardar Modelo en GCS  
+**4.2. Guardar Modelo en GCS**
 ```  
 model.save_model("/tmp/model.bst")                             # Guardado temporal local  
 from google.cloud import storage  
