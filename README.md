@@ -1,4 +1,4 @@
-# Cloud - XGBoost distribuido en Google Vertex AI usando PySpark
+# Cloud - XGBoost escalable y distribuido en Google Vertex AI usando PySpark
 
 ## Descripción general
 
