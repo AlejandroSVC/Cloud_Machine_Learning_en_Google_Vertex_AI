@@ -1,5 +1,7 @@
 # Cloud - XGBoost escalable y distribuido en Google Vertex AI usando PySpark
 
+![banner_GCP](docs/assets/images/banner_GCP.jpg)
+
 ## Descripción general
 
 Este script ejecuta un flujo de trabajo orientado a producción para la clasificación binaria distribuida de XGBoost en Google Cloud ML, utilizando PySpark para preprocesar un gran conjunto de datos de Parquet y aprovechando el entrenamiento distribuido de XGBoost (Dask o Rabit). La guía incorpora las mejores prácticas de Google Cloud ML en cada paso, con lógica condicional para el tamaño de los datos y la aceleración de la GPU.
